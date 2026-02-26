@@ -305,6 +305,15 @@ class PredictionErrorDisplay(DisplayMixin):
             ncol=1,
             frameon=True,
         )
+        
+        # figure-level legends are excluded from savefig's boundary calculation by default;
+        # patching savefig to use bbox_inches="tight" ensures the legend is included when saving.
+
+        _original_savefig = self.figure_.savefig
+        def _savefig_with_legend(*args, **kwargs):
+            kwargs.setdefault("bbox_inches", "tight")
+            _original_savefig(*args, **kwargs)
+        self.figure_.savefig = _savefig_with_legend
 
         if len(self.ax_) == 1:
             self.ax_ = self.ax_[0]
